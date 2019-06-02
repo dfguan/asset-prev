@@ -59,7 +59,7 @@ done < $10xlist
 bin/ast_10x $output_dir/gaps.bed $bam1 $bam2 $bam3 ... >$output_dir/10x.bed 2>ast_10x.log
 
 ```
-
+**10x_trim** is available at [dfguan/utls](https://github.com/dfguan/utls).
 ## Bionano Processing
 Given a bionano files list *bnlist* (suppose in fastq.gz format) and the assembly *asm*, use the following command to get Bionano support regions.
 
