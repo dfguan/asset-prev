@@ -263,13 +263,15 @@ diff_ary_t *col_diff_cov2(char *xmap, ctg_pos_t *rmap, qmap_ary_t *qmap, sdict_t
 				/*fprintf(stderr, "qry_id:%d\t%d\t%d\n",r.qry_id, qs_ind, qe_ind);		*/
 				uint32_t diff_qry = qmap[r.qry_id].q[qe_ind - 1].pos - qmap[r.qry_id].q[qs_ind - 1].pos;
 				int diff = diff_ref > diff_qry ? diff_ref - diff_qry : diff_qry - diff_ref;
+				int ndiff = (float)diff / diff_ref * ctgs->seq[r.ref_id - 1].len;
 				float cv = 0;
 				int j;
 				for ( j = qs_ind; j < qe_ind; ++j) cv += qmap[r.qry_id].q[j-1].cov;
 				cv = cv / (qe_ind - qs_ind);
 				/*fprintf(stderr, "qry_id:%d\t%d\t%d\tref_id:%d\t%d\t%d\t%d\n",r.qry_id, qs_ind, qe_ind, r.ref_id, rs_ind, re_ind, diff);	*/
-				fprintf(stderr, "%s\t%d\t%d\t%d\t%d\t%d\t%d\n", ctgs->seq[r.ref_id-1].name, s, e, r.qry_id, qs_ind, qe_ind, diff_qry);	
-				diff_t diff_tmp = (diff_t) {cv, diff, rs_ind - 1, re_ind - 1};
+				/*fprintf(stderr, "%s\t%d\t%d\t%d\t%d\t%d\t%d\n", ctgs->seq[r.ref_id-1].name, s, e, r.qry_id, qs_ind, qe_ind, diff_qry);	*/
+				fprintf(stderr, "%s\t%d\t%d\t%d\n", ctgs->seq[r.ref_id-1].name, e, s,diff);	
+				diff_t diff_tmp = (diff_t) {cv, ndiff, rs_ind - 1, re_ind - 1};
 				diff_ary_push(&diff_cov[r.ref_id - 1], &diff_tmp);
 			}
 		}
