@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # Calculate absolute and relative assembly score
 # N50, maximum, total, Ns
-import sys
+import sys, argparse
 
 # colored print  borrow from https://python-forum.io/Thread-Colored-text-output-in-python-3
 black = lambda text: '\033[0;30m' + text + '\033[0m'
@@ -13,14 +13,14 @@ magenta = lambda text: '\033[0;35m' + text + '\033[0m'
 cyan = lambda text: '\033[0;36m' + text + '\033[0m'
 white = lambda text: '\033[0;37m' + text + '\033[0m'
 
-def col_evd(min_suprt, evd_fn, ctg_evd):
+def col_evd(min_suprt, ntech, evd_fn, ctg_evd):
     tsc = 0
     tlen = 0
     prers = -1
     prere = -1
     prectg = ""
     ctge = -1
-    suprt_tech_distri = [0,0,0,0,0] # need to change if applied techs are changed
+    suprt_tech_distri = [0] * (ntech + 1) # need to change if applied techs are changed
     with open(evd_fn) as f:
         for ln in f:
             lnlist = ln.strip().split('\t')
@@ -74,7 +74,7 @@ def stat(ctg_evd):
     lls = len(ls)
     ls.sort(reverse=True)
     suml = [sum(ls[0:z + 1]) for z in range(lls)] 
-    idx = [-1] * 6
+    idx = [-1] * 6 # from N50 - N100
     for z in range(lls):
         for i in range(5, 11):
             if suml[z] >= i * suma / 10:
@@ -97,15 +97,22 @@ def print_stat(tscore, suptd, tlen, suma, lls, maxa, idx, v, ntech):
     for z in [50, 60, 70, 80, 90, 100]:
         print ("N{0}: {1}, L{0}: {2}".format(z, v[z//10-5], idx[z//10 - 5])) 
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print ("acc_stat <acc.bed>")
-        exit (1)
-    min_suprt = 2
-    acc_fn = sys.argv[1]
+def worker(opts):
+    min_suprt = opts.minsup 
+    acc_fn = opts.acc_fn 
+    ntech = opts.ntech
+    
     ctg_evd = {}
-    [tscore, tlen, suptd] =col_evd(min_suprt, acc_fn, ctg_evd)
+    [tscore, tlen, suptd] =col_evd(min_suprt, ntech, acc_fn, ctg_evd)
     (suma, maxa, lls, idx, v) = stat(ctg_evd) 
-    print_stat(tscore, suptd, tlen, suma, lls, maxa, idx, v, 4)    
+    print_stat(tscore, suptd, tlen, suma, lls, maxa, idx, v, ntech)    
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Genome Comparison plot')
+    parser.add_argument('-m', '--minsup', type=int, action="store", dest = "minsup", help ='minimum support technology', default=2)
+    parser.add_argument('-n', '--ntech', type=int, action="store", dest = "ntech", help ='number of technologies', default=4)
+    parser.add_argument('acc_fn', type=str, action="store", help = "evidence accumulation bed file")
+    opts = parser.parse_args()
+    sys.exit(worker(opts))
 
 
