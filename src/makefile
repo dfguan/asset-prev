@@ -25,11 +25,10 @@ ast_bion: ast_bion.o amap.o sdict.o ast.o
 detgaps: det_gaps.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-acc: acc.o sdict.o bed.o
+acc: acc.o sdict.o bed.o ast.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-acc2: acc2.o sdict.o bed.o ast.o
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 
 join:joinh.o sdict.o bamlite.o 
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)

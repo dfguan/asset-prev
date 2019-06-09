@@ -15,9 +15,12 @@
  *
  * =====================================================================================
  */
+// use uint8_t:4l to keep number of support technology and the highest bit used for a gap, 4h for technology track
+
 #include <stdio.h>
 #include <zlib.h>
 
+#include "ast.h"
 #include "bed.h"
 #include "sdict.h"
 #include "kseq.h"
@@ -84,7 +87,7 @@ int acc_evd2(char *evd, uint8_t *sig, sdict_t *ctgs, uint64_t* sig_ind)
 		
 		uint8_t *ps = sig + sig_ind[ind];	
 		uint32_t j;	
-		for (j = r.s; j < r.e; ++j) {
+		for (j = r.s-1; j <= r.e-1; ++j) {
 			/*ps[];*/
 			/*if (j & 1) ps[j>>1] += 1;*/
 			/*else ps[j>>1] += 0x10;*/
@@ -174,6 +177,7 @@ int gen_bed(uint8_t *signals, sdict_t *ctgs, uint64_t *sig_ind)
 {
 	uint32_t i;
 	for (i = 0; i < ctgs->n_seq; ++i) { //for each contig
+		/*fprintf(stderr, "%d %s, %lu %lu\n", ctgs->n_seq, ctgs->seq[i].name, sig_ind[i], ctgs->seq[i].len);*/
 		uint8_t *p = signals + sig_ind[i];
 		uint32_t j = 0;
 		uint32_t l_seq = ctgs->seq[i].len;
@@ -190,16 +194,16 @@ int gen_bed(uint8_t *signals, sdict_t *ctgs, uint64_t *sig_ind)
 					/*if (pd) {*/
 						/*fprintf(stdout, "variableStep chrom=%s span=%u\n",ctgs->seq[i].name, z -j);	*/
 						/*fprintf(stdout, "%u %hhu\n",j+1,pd);	*/
-						if (pd == 1) fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j, z, pd, tp[ptp]);
-						else fprintf(stdout, "%s\t%u\t%u\t%hhu\n", ctgs->seq[i].name, j, z, pd);
-					s[pd] += z -j;
-					cnt[pd] += 1;
+						if ((pd & 0x7) == 1) fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\t%c\n", ctgs->seq[i].name, j+1, z, pd & 0x7, tp[ptp], pd & 0x8 ? 'G':'N');
+						else fprintf(stdout, "%s\t%u\t%u\t%hhu\t\t%c\n", ctgs->seq[i].name, j, z, pd & 0x7, pd & 0x8 ? 'G':'N');
+					s[pd & 0x7] += z -j;
+					cnt[pd & 0x7] += 1;
 					/*}*/
 					break;
-				} else if (pd == 1 && ptp != tpi) {
-						fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j, z, pd, tp[ptp]);
-						s[pd] += z -j;
-						cnt[pd] += 1;
+				} else if ((pd & 0x7)== 1 && ptp != tpi) {
+						fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\t%c\n", ctgs->seq[i].name, j, z, pd & 0x7, tp[ptp], pd & 0x8 ? 'G':'N');
+						s[pd & 0x7] += z -j;
+						cnt[pd & 0x7] += 1;
 					/*}*/
 					break;
 				} 	
@@ -221,6 +225,48 @@ int gen_bed(uint8_t *signals, sdict_t *ctgs, uint64_t *sig_ind)
 	return 0;
 }	
 
+void init_gaps(char *gap_fn, ns_t *ns, sdict_t *ctgs)
+{
+	bed_file_t* bf = bed_open(gap_fn);
+	bed_rec_t r;
+	while (bed_read(bf, &r) >= 0) {
+		uint32_t ind = sd_put(ctgs, r.ctgn, r.e);
+		ctgs->seq[ind].len = r.e;
+		/*if (r.e - r.s >= max_ins_len) {*/
+		ns_push(ns, ind);
+		cors tmp = (cors){r.s, r.e};
+		cord_push(&ns->ct[ind], &tmp);				
+		/*}*/
+	}
+	bed_close(bf);
+}
+
+uint64_t col_gs(sdict_t *sd)
+{
+	uint64_t tl = 0;
+	int i;
+	for ( i = 0; i < sd->n_seq; ++i) tl += sd->seq[i].len;
+	return tl;
+}
+
+int mark_gaps(uint8_t* sigs, uint64_t *sig_idx, ns_t *ns)
+{
+	int i;	
+	/*fprintf(stderr, "%d\n", ns->n);*/
+	for ( i = 0; i < ns->n; ++i) {
+		uint8_t *p = sigs + sig_idx[i];
+		cord_t *ct = &ns->ct[i];	
+		cors *cs = ct->coords;
+		uint32_t j,z;
+		for ( j = 0; j < ct->n; ++j) {
+			/*fprintf(stderr, "%u\t%u\n", cs[j].s, cs[j].e);*/
+			for ( z = cs[j].s; z < cs[j].e; ++z) 
+				p[z] |= 0x8;		
+		} 
+	}	
+	return 0;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -229,23 +275,28 @@ int main(int argc, char *argv[])
 	
 	if (n < 2) {
 		fprintf(stderr, "[E::%s] require at least one bed file\n", __func__);
-		fprintf(stderr, "acc <REF.FAI> <BED_FILE> ...\n");
+		fprintf(stderr, "acc <GAP.BED> <BED_FILEs> ...\n");
 		return -1;
 	} 
 	//initiate index based on ctgs name and length file 
 										
-	char *faidx_fn = argv[1];
+	char *gap_fn = argv[1];
+	ns_t *ns = calloc(1, sizeof(ns_t));
 	sdict_t *ctgs = sd_init();
-		
+	
 #ifdef VERBOSE
 	fprintf(stderr, "[M::%s] collect contig names and contig length\n", __func__);
 #endif
-	uint64_t total_len = col_ctgs(faidx_fn, ctgs);
+	init_gaps(gap_fn, ns, ctgs);
+	uint64_t total_len = col_gs(ctgs);
+	/*fprintf(stderr, "%lu\n", total_len)	;*/
 	/*uint32_t blk_len = (max_len & 1) + (max_len >> 1);	*/
 	uint64_t *sig_ind = init_sig_index(ctgs);
 	
 	uint8_t *signals = calloc(total_len + 32, sizeof(uint8_t));
 	
+	mark_gaps(signals, sig_ind, ns);	
+	ns_destroy(ns);
 	if (!signals) {
 		sd_destroy(ctgs);
 		fprintf(stderr, "[E::%s] fail to allocate memory for signals, required %lu bytes\n", __func__, total_len + 32);	
@@ -263,10 +314,15 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "[M::%s] generate wig\n", __func__);
 #endif
 	/*gen_wig(signals, ctgs, blk_len);	*/
+	/*fprintf(stderr, "before: %p\n", ctgs);*/
 	gen_bed(signals, ctgs, sig_ind);	
+	/*fprintf(stderr, "after: %p\n", ctgs);*/
 		
+	/*fprintf(stderr, "free contgis");*/
 	sd_destroy(ctgs);
+	/*fprintf(stderr, "free signals");*/
 	free(signals);
+	/*fprintf(stderr, "free signals index");*/
 	if (sig_ind) free(sig_ind);
 	return 0;
 }
