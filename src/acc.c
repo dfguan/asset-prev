@@ -84,7 +84,7 @@ int acc_evd2(char *evd, uint8_t *sig, sdict_t *ctgs, uint64_t* sig_ind)
 		
 		uint8_t *ps = sig + sig_ind[ind];	
 		uint32_t j;	
-		for (j = r.s-1; j <= r.e-1; ++j) {
+		for (j = r.s; j < r.e; ++j) {
 			/*ps[];*/
 			/*if (j & 1) ps[j>>1] += 1;*/
 			/*else ps[j>>1] += 0x10;*/
@@ -190,14 +190,14 @@ int gen_bed(uint8_t *signals, sdict_t *ctgs, uint64_t *sig_ind)
 					/*if (pd) {*/
 						/*fprintf(stdout, "variableStep chrom=%s span=%u\n",ctgs->seq[i].name, z -j);	*/
 						/*fprintf(stdout, "%u %hhu\n",j+1,pd);	*/
-						if (pd == 1) fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j+1, z, pd, tp[ptp]);
-						else fprintf(stdout, "%s\t%u\t%u\t%hhu\n", ctgs->seq[i].name, j+1, z, pd);
+						if (pd == 1) fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j, z, pd, tp[ptp]);
+						else fprintf(stdout, "%s\t%u\t%u\t%hhu\n", ctgs->seq[i].name, j, z, pd);
 					s[pd] += z -j;
 					cnt[pd] += 1;
 					/*}*/
 					break;
 				} else if (pd == 1 && ptp != tpi) {
-						fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j+1, z, pd, tp[ptp]);
+						fprintf(stdout, "%s\t%u\t%u\t%hhu\t%s\n", ctgs->seq[i].name, j, z, pd, tp[ptp]);
 						s[pd] += z -j;
 						cnt[pd] += 1;
 					/*}*/

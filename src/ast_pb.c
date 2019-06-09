@@ -24,6 +24,7 @@
 /*ctg_pos_t *col_pos(char *paf_fn, int min_as, int min_mq, sdict_t *ctgs, uint32_t flank)*/
 int col_pos(char *paf_fn, int min_mq, float min_mlr,  sdict_t *ctgs, uint32_t flank, ctg_pos_t *d)
 {
+	//paf format is 0 based, half closed coordinate system, it needs to be converted into 1 based fully closed coordinates 
 	paf_file_t *fp = paf_open(paf_fn);
 	if (!fp) {
 		fprintf(stderr, "[E::%s] %s doesn't exist!\n", __func__, paf_fn);
@@ -33,6 +34,7 @@ int col_pos(char *paf_fn, int min_mq, float min_mlr,  sdict_t *ctgs, uint32_t fl
 	while (paf_read(fp, &r) >= 0) {
 		//primary tag always exist? it is an optional tga
 		/*fprintf(stderr, "into %d\n", 1);	*/
+		++r.ts; //convert to one-based
 		if (r.isprim) {
 			if (r.mq > min_mq || r.qe - r.qs > (uint32_t)(min_mlr * r.ql)) {
 				/*fprintf(stderr, "into %d\n", 2);	*/

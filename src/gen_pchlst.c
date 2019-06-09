@@ -154,7 +154,7 @@ void init_gaps(char *gap_fn, ns_t *ns, sdict_t *ctgs)
 		uint32_t ind = sd_put(ctgs, r.ctgn, 0);
 		/*if (r.e - r.s >= max_ins_len) {*/
 		ns_push(ns, ind);
-		cors tmp = (cors){r.s, r.e};
+		cors tmp = (cors){r.s, r.e}; //don't change to one based
 		cord_push(&ns->ct[ind], &tmp);				
 		/*}*/
 	}
@@ -183,11 +183,11 @@ int wrt_pchlst(bed_ary_t *bd, sdict_t *ctgs, ns_t *ns)
 					size_t z;
 					for ( z = s; z <= e; ++z) {
 						if (a[z].n_tech != 1) 
-							fprintf(stdout,"E%u:%u", a[z].n_tech, a[z].e - a[z].s + 1);
+							fprintf(stdout,"E%u:%u", a[z].n_tech, a[z].e - a[z].s);
 						else {
 							uint32_t o = a[z].tech;
 							/*fprintf(stdout, "tech:%hx\n",o);*/
-							fprintf(stdout, "%s:%u", (char *)&o, a[z].e - a[z].s +1);
+							fprintf(stdout, "%s:%u", (char *)&o, a[z].e - a[z].s);
 						} 
 						if (z != e) fprintf(stdout,",");
 					}	
@@ -203,10 +203,10 @@ int wrt_pchlst(bed_ary_t *bd, sdict_t *ctgs, ns_t *ns)
 				size_t z;
 				for ( z = s; z <= e; ++z) {
 					if (a[z].n_tech != 1) 
-						fprintf(stdout,"E%u:%u", a[z].n_tech, a[z].e - a[z].s + 1);
+						fprintf(stdout,"E%u:%u", a[z].n_tech, a[z].e - a[z].s);
 					else {
 						uint32_t o = a[z].tech;
-						fprintf(stdout, "%s:%u", (char *)&o, a[z].e - a[z].s +1);
+						fprintf(stdout, "%s:%u", (char *)&o, a[z].e - a[z].s);
 					} 
 					if (z != e) fprintf(stdout,",");
 				}	

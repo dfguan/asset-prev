@@ -369,16 +369,18 @@ void sel_sup_reg_dyn(cov_ary_t *ca, float min_cov_rat, int min_cov, int max_cov,
 					} else if (ca[i].intv[j].s - pe < CONT_THRES_10X) {
 						pe = ca[i].intv[j].e;	
 					} else {
-						fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps, pe);
+						fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps - 1, pe);
 						ps = ca[i].intv[j].s;
 						pe = ca[i].intv[j].e;	
 					}
 				}
 			}
-			if (is_set) fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps, pe);
+			if (is_set) fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps - 1, pe);
 		}
 	}
 }
+
+// one-based, fully closed coordinates
 void sel_sup_reg(cov_ary_t *ca, int min_cov, int max_cov, sdict_t* ctgs, char *tp, char *desc)
 {
 	//print a header 
@@ -405,13 +407,13 @@ void sel_sup_reg(cov_ary_t *ca, int min_cov, int max_cov, sdict_t* ctgs, char *t
 					} else if (ca[i].intv[j].s - pe < CONT_THRES) {
 						pe = ca[i].intv[j].e;	
 					} else {
-						fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps, pe);
+						fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps - 1, pe); //convert to zero-based, half closed bed format
 						ps = ca[i].intv[j].s;
 						pe = ca[i].intv[j].e;	
 					}
 				}
 			}
-			if (is_set) fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps, pe);
+			if (is_set) fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, ps - 1, pe);
 		}
 	}
 }

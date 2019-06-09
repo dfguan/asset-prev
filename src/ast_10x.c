@@ -181,11 +181,11 @@ int proc_bam(char *bam_fn, int min_mq, uint32_t max_is, sdict_t *ctgs, int opt, 
 			if (b->core.isize > 0 && !is_set) {
 				uint8_t *s = bam_aux_get(b, "AS");
 				if (s) aln.as = *(int32_t *)(s+1); else aln.as = -1;	
-				aln.s = opt ? get_target_end(bam1_cigar(b), b->core.n_cigar, b->core.pos) :  b->core.pos + 1;
+				aln.s = opt ? get_target_end(bam1_cigar(b), b->core.n_cigar, b->core.pos) :  b->core.pos + 1; // one-based 
 				aln.mq = b->core.qual;
 				aln.tid = b->core.tid;
 				/*uint32_t e = get_target_end(bam1_cigar(b), b->core.n_cigar, aln.s);			*/
-				aln.e = aln.s + b->core.isize - 1;	
+				aln.e = aln.s + b->core.isize - 1; //fully-closed 	
 			} 
 			if (opt && b->core.isize < 0) 
 				aln.e = b->core.pos + 1;
@@ -266,7 +266,7 @@ void init_gaps(char *gap_fn, ns_t *ns, sdict_t *ctgs, uint32_t min_len)
 	while (bed_read(bf, &r) >= 0) {
 		uint32_t ind = sd_get(ctgs, r.ctgn);
 		if (r.e - r.s > min_len) {
-			cors tmp = (cors){r.s, r.e};
+			cors tmp = (cors){r.s + 1, r.e}; //to 1 based
 			cord_push(&ns->ct[ind], &tmp);				
 		}
 	}

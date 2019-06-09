@@ -164,7 +164,7 @@ void init_gaps(char *gap_fn, ns_t *ns, sdict_t *ctgs)
 	while (bed_read(bf, &r) >= 0) {
 		uint32_t ind = sd_put(ctgs, r.ctgn, 0);
 		/*if (r.e - r.s >= min_len) {*/
-			cors tmp = (cors){r.s, r.e};
+			cors tmp = (cors){r.s + 1, r.e};
 			cord_push(&ns->ct[ind], &tmp);				
 		/*}*/
 	}
@@ -309,10 +309,10 @@ int proc_bam(char *bam_fn, int min_mq, uint32_t max_ins_len, sdict_t *ctgs, se_a
 			aln_inf_t tmp; 
 			tmp.rev = !!(b->core.flag & 0x10);
 			tmp.nrev = !!(b->core.flag & 0x20);
-			tmp.s = b->core.pos + 1;
+			tmp.s = b->core.pos + 1; //one-based 
 			tmp.mq = b->core.qual;
 			tmp.tid = b->core.tid;
-			tmp.e = tmp.s + b->core.isize - 1;	
+			tmp.e = tmp.s + b->core.isize - 1;//fully closed	
 			kv_push(aln_inf_t, all, tmp);	
 			uint32_t *cigar = bam1_cigar(b);
 			if ((tmp.rev && bam_cigar_op(cigar[0]) == BAM_CMATCH)|| (!tmp.rev && bam_cigar_op(cigar[b->core.n_cigar - 1]) == BAM_CMATCH))	

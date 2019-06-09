@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 			uint32_t j;
 			for ( j = i + 1; j <= length; ++j) {
 				if (j == length ||(seq->seq.s[j] != 'n' && seq->seq.s[j] != 'N')) { 
-					fprintf(stdout, "%s\t%u\t%u\n", seq->name.s, i + 1, j);
+					fprintf(stdout, "%s\t%u\t%u\n", seq->name.s, i, j);
 					break;
 				}	
 			}
