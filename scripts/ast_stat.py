@@ -62,7 +62,7 @@ def col_evd(min_suprt, ntech, evd_fn, ctg_evd):
             re = int(lnlist[2])
             ntech = int(lnlist[3])
             isgap = 1 if lnlist[5] == 'G' else 0 
-            print (lnlist[5])
+            # print (lnlist[5])
             if ctgn not in ctgnd: # contig name is in order, this is a new contig
                 if prers != -1:
                     ctg_evd.append([prere - prers, gaps])
@@ -147,7 +147,7 @@ def print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_nogaps, ntech):
     print ("relative assembly score: {0:.2f}".format(tscore/tlen/ntech))
     print ("")
     print (green("support technology distribution (%) [0-{0} techs]:".format(ntech)) + " {1}".format(ntech, ' '.join(["{0:.2f}".format(x/tlen * 100) for x in suptd])))
-    print (green("support technology distribution (%) [0-{0} techs] (gaps excluded):".format(ntech)) + " {1}".format(ntech, ' '.join(["{0:.2f}".format((suptd[i] - gaptd[i])/tlen * 100) for i in range(ntech + 1)])))
+    print (green("Fraction of Non-Ns in support technology distribution (%) [0-{0} techs]:".format(ntech)) + " {1}".format(ntech, ' '.join(["{0:.2f}".format((suptd[i] - gaptd[i])/suptd[i] * 100) for i in range(ntech + 1)])))
     print ("")
     header = "reliable blocks statistics [>=2 techs]: "
     for suma, maxa, lls, idx, v in [stat_gaps, stat_nogaps]:
@@ -166,7 +166,7 @@ def worker(opts):
     [tscore, tlen, suptd, gaptd] =col_evd(min_suprt, ntech, acc_fn, ctg_evd)
     stat_gaps = stat(ctg_evd, 1) 
     stat_no_gaps = stat(ctg_evd, 0) 
-    print (gaptd)
+    # print (gaptd)
     print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_no_gaps, ntech)    
 
 if __name__ == "__main__":
