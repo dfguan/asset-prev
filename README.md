@@ -61,7 +61,7 @@ bin/ast_10x $output_dir/gaps.bed $bam1 $bam2 $bam3 ... >$output_dir/10x.bed 2>as
 ```
 **10x_trim** is available at [dfguan/utls](https://github.com/dfguan/utls).
 ## Bionano Processing
-Given a bionano files list *bnlist* (suppose in fastq.gz format) and the assembly *asm*, use the following command to get Bionano support regions.
+Given a bionano files list *bnlist* (suppose in .cmap format) and the assembly *asm*, use the following command to get Bionano support regions.
 
 ```
 
@@ -69,9 +69,9 @@ solve_dir=/nfs/users/nfs_d/dg30/luster_dg30/dg30/projects/vgp/tools/Solve3.2.1_0
 for fl in $bnlist
 do
 	fn=`basename $fl`
-	fn_pref=`echo $fl | cut -d_ -f1`
-	tech=`echo $fl | cut -d_ -f2`
-	enzyme=`echo $fl | cut -d_ -f3`
+	fn_pref=`echo $fn | cut -d_ -f1`
+	tech=`echo $fn | cut -d_ -f2`
+	enzyme=`echo $fn | cut -d_ -f3`
 	perl $solve_dir/HybridScaffold/04122018/scripts/fa2cmap.pl -n ${enzyme:0:4} -i ref -o $output_dir
 	cp $fl $output_dir
 	ref_prefix=${asm%.*}
