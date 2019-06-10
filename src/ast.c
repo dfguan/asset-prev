@@ -264,18 +264,18 @@ void print_maximum_column_cov(cov_ary_t *ca, sdict_t* ctgs, char *tp, uint32_t w
 				else {
 					total_coverage[s_idx] += (uint64_t)((s_idx + 1) * ws - s) * coverage;
 					for (++s_idx; s_idx < e_idx; ++s_idx) total_coverage[s_idx] += (uint64_t) ws * coverage;
-					total_coverage[s_idx] += (uint64_t)(e - s_idx * ws)*coverage;	
+					total_coverage[s_idx] += (uint64_t)(e - s_idx * ws + 1)*coverage;	
 				}	
 			}
 			if (tot_cov_cnt > 2) {
 				fprintf(fp, "fixedStep chrom=%s start=1 step=%d span=%d\n", ctgs->seq[i].name, ws, ws);
 				uint32_t z;
 				for (z = 0; z < tot_cov_cnt - 2; ++z) fprintf(fp, "%u\n", total_coverage[z]/ws);
-				uint32_t lastnbases = ca[i].intv[ca[i].n - 1].e - (tot_cov_cnt - 2) * ws;
+				uint32_t lastnbases = ctgs->seq[i].len - (tot_cov_cnt - 2) * ws;
 				fprintf(fp, "variableStep chrom=%s span=%d\n", ctgs->seq[i].name, lastnbases);
 				fprintf(fp, "%u %u\n", (tot_cov_cnt - 2) * ws + 1, (total_coverage[z] + total_coverage[z+1]) /lastnbases);
 			} else {
-				uint32_t lastnbases = ca[i].intv[ca[i].n - 1].e;
+				uint32_t lastnbases = ctgs->seq[i].len;
 				fprintf(fp, "variableStep chrom=%s span=%d\n", ctgs->seq[i].name, lastnbases);
 				fprintf(fp, "%u %u\n", 1, total_coverage[0] /lastnbases);
 			} 
@@ -302,7 +302,7 @@ void print_coverage_wig(cov_ary_t *ca, sdict_t* ctgs, char *tp, uint32_t ws, cha
 	for ( i = 0; i < ctgs->n_seq; ++i) {
 		if (ca[i].n) {
 			n = 0;
-			uint32_t tot_cov_cnt = (ca[i].intv[ca[i].n - 1].e - 1)/ws + 1;	
+			uint32_t tot_cov_cnt = (ctgs->seq[i].len + ws - 1)/ws;	
 			if (tot_cov_cnt > m) {
 				if (total_coverage) free(total_coverage);
 				total_coverage = calloc(tot_cov_cnt, sizeof(uint64_t));
@@ -322,18 +322,18 @@ void print_coverage_wig(cov_ary_t *ca, sdict_t* ctgs, char *tp, uint32_t ws, cha
 				else {
 					total_coverage[s_idx] += (uint64_t)((s_idx + 1) * ws - s) * coverage;
 					for (++s_idx; s_idx < e_idx; ++s_idx) total_coverage[s_idx] += (uint64_t) ws * coverage;
-					total_coverage[s_idx] += (uint64_t)(e - s_idx * ws)*coverage;	
+					total_coverage[s_idx] += (uint64_t)(e - s_idx * ws + 1)*coverage;	
 				}	
 			}
 			if (tot_cov_cnt > 2) {
 				fprintf(fp, "fixedStep chrom=%s start=1 step=%d span=%d\n", ctgs->seq[i].name, ws, ws);
 				uint32_t z;
 				for (z = 0; z < tot_cov_cnt - 2; ++z) fprintf(fp, "%u\n", total_coverage[z]/ws);
-				uint32_t lastnbases = ca[i].intv[ca[i].n - 1].e - (tot_cov_cnt - 2) * ws;
+				uint32_t lastnbases = ctgs->seq[i].len - (tot_cov_cnt - 2) * ws;
 				fprintf(fp, "variableStep chrom=%s span=%d\n", ctgs->seq[i].name, lastnbases);
 				fprintf(fp, "%u %u\n", (tot_cov_cnt - 2) * ws + 1, (total_coverage[z] + total_coverage[z+1]) /lastnbases);
 			} else {
-				uint32_t lastnbases = ca[i].intv[ca[i].n - 1].e;
+				uint32_t lastnbases = ctgs->seq[i].len;
 				fprintf(fp, "variableStep chrom=%s span=%d\n", ctgs->seq[i].name, lastnbases);
 				fprintf(fp, "%u %u\n", 1, total_coverage[0] /lastnbases);
 			} 
