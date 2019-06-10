@@ -13,7 +13,7 @@ Asset uses sequencing data from four platforms (Pacbio, 10X, Bionano, HiC) to ac
 - bwa 
 - samtools
 - RefAligner
-- some other
+- runner (optional, only necessary when you run my pipeline script run_asset.py)
 
 
 # Installation
@@ -124,7 +124,36 @@ bin/acc $asm.fai $output_dir/{pb.bed,10x.bed,hic.bed,bn.bed} > acc.bed 2> acc.lo
 bin/pchlst $output_dir/gaps.bed acc.bed > pchlist.bed 2>pchlst.log
 ```
 
+## Assembly Statistics
 
+```
+python3 scripts/ast_stat.py $output_dir/acc.bed 
+```
+Finally you will get output like this:
 
+```
+assembly scores:
+absolute assembly score: 3.79     
+relative assembly score: 0.95 
 
+support technology distribution (%) [0-4 techs]: 0.35 0.80 1.77 13.21 83.87
+Fraction of Non-Ns in support technology distribution (%) [0-4 techs]: 7.66 15.43 46.59 97.80 100.00
+
+reliable blocks statistics [>=2 techs]:
+sum: 585120528, largest: 21565065, average: 1354445.67
+N50: 11828597, L50: 18
+N60: 10406847, L60: 23
+N70: 8590836, L70: 29
+N80: 5534544, L80: 37
+N90: 1978425, L90: 56
+N100: 4, L100: 431
+reliable blocks statistics [>=2 techs] (gaps excluded):
+sum: 577813644, largest: 21052119, average: 1337531.58
+N50: 11655209, L50: 18
+N60: 10406847, L60: 23
+N70: 8579444, L70: 29
+N80: 5534519, L80: 37
+N90: 1978425, L90: 56
+N100: 4, L100: 431
+```
 
