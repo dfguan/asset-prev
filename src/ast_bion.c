@@ -365,7 +365,7 @@ void sel_sup_reg_bionano(diff_ary_t *diff_cov, sdict_t *ctgs, ctg_pos_t *rmap, f
 			int z;
 			if(rblk[j])	{
 				for (z = j; z < n_ctg_pos - 1 && rblk[z] == 1; ++z);	
-				fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, rmap->ctg_pos[i].p[j], rmap->ctg_pos[i].p[z]);
+				fprintf(stdout, "%s\t%u\t%u\n", ctgs->seq[i].name, rmap->ctg_pos[i].p[j] - 1, rmap->ctg_pos[i].p[z]);
 				j = z;
 			} 
 		}
