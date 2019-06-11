@@ -141,13 +141,19 @@ def stat(ctg_evd, contain_gaps):
     v = [ls[e] for e in idx]
     return (suma, maxa, lls, idx, v)
 
-def print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_nogaps, ntech):
+def print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_nogaps, min_suprt, ntech):
     print (green("assembly scores:"))
     print ("absolute assembly score: {0:.2f}".format(tscore/tlen))
     print ("relative assembly score: {0:.2f}".format(tscore/tlen/ntech))
     print ("")
-    print (green("support technology distribution (%) [0-{0} techs]:".format(ntech)) + " {1}".format(ntech, ' '.join(["{0:.2f}".format(x/tlen * 100) for x in suptd])))
-    print (green("Fraction of Non-Ns in support technology distribution (%) [0-{0} techs]:".format(ntech)) + " {1}".format(ntech, ' '.join(["{0:.2f}".format((suptd[i] - gaptd[i])/suptd[i] * 100) for i in range(ntech + 1)])))
+    min_suprt_frac = 0
+    min_suprt_agct_frac = 0
+    for i in range(min_suprt, ntech+1):
+        min_suprt_frac += suptd[i]
+        min_suprt_agct_frac += (suptd[i] - gaptd[i])
+    min_suprt_agct_frac /= min_suprt_frac
+    min_suprt_frac /= tlen
+    print (green("support technology distribution (%, %-Non-Ns) [0-{0} techs]:".format(ntech)) + " {1} {2:.2f} {3:.2f}".format(ntech, ' '.join(["{0:.2f} {1:.2f}".format(suptd[i]/tlen * 100, (suptd[i] - gaptd[i])/suptd[i] * 100) for i in range(ntech + 1)]), min_suprt_frac * 100, min_suprt_agct_frac * 100))
     print ("")
     header = "reliable blocks statistics [>=2 techs]: "
     for suma, maxa, lls, idx, v in [stat_gaps, stat_nogaps]:
@@ -156,7 +162,7 @@ def print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_nogaps, ntech):
         # print (v)
         for z in [50, 60, 70, 80, 90, 100]:
             print ("N{0}: {1}, L{0}: {2}".format(z, v[z//10-5], idx[z//10 - 5])) 
-        header = "reliable blocks statistics [>=2 techs] (gaps excluded): "
+        header = "reliable blocks statistics [>=2 techs] (Non-Ns): "
 def worker(opts):
     min_suprt = opts.minsup 
     acc_fn = opts.acc_fn 
@@ -167,7 +173,7 @@ def worker(opts):
     stat_gaps = stat(ctg_evd, 1) 
     stat_no_gaps = stat(ctg_evd, 0) 
     # print (gaptd)
-    print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_no_gaps, ntech)    
+    print_stat(tscore, suptd, gaptd, tlen, stat_gaps, stat_no_gaps, min_suprt, ntech)    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Genome Comparison plot')

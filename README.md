@@ -83,7 +83,7 @@ do
 	then
 		optn="DLE1_"$optn
 	fi
-   python2 $solve_dir/Pipeline/04122018/runCharacterize.py -t   $solve_dir/RefAligner/7437.7523rel/RefAligner -q $query_cmap -r  $ref_cmap -p $solve_dir/Pipeline/04122018/ -a $solve_dir/RefAligner/7437.7523rel/optArguments_haplotype_"$optn".xml -n 4
+   python2 $solve_dir/Pipeline/04122018/runCharacterize.py -t   $solve_dir/RefAligner/7437.7523rel/RefAligner -q $query_cmap -r  $ref_cmap -p $solve_dir/Pipeline/04122018/ -a $solve_dir/RefAligner/7437.7523rel/optArguments_nonhaplotype_"$optn".xml -n 4
 	map_path=$output_dir/alignref/${fn%.*} 
 	rmap_fn="$map_path"_r.cmap
 	qmap_fn="$map_path"_q.cmap
@@ -120,7 +120,7 @@ once you got the bed files from Pacbio (pb.bed), 10X (10x.bed), Bionano (bn.bed)
 
 ```
 samtools faidx $asm
-bin/acc $asm.fai $output_dir/{pb.bed,10x.bed,hic.bed,bn.bed} > acc.bed 2> acc.log
+bin/acc $output_dir/gaps.bed $output_dir/{pb.bed,10x.bed,hic.bed,bn.bed} > acc.bed 2> acc.log
 bin/pchlst $output_dir/gaps.bed acc.bed > pchlist.bed 2>pchlst.log
 ```
 
