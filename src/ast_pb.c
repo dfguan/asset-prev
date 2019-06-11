@@ -144,7 +144,7 @@ help:
 				fprintf(stderr, "Options:\n");	
 				fprintf(stderr, "         -m    INT      minimum coverage [10]\n");	
 				fprintf(stderr, "         -M    INT      maximum coverage [400]\n");
-				fprintf(stderr, "         -q    INT      minimum mapping quality [0]\n");	
+				/*fprintf(stderr, "         -q    INT      minimum mapping quality [0]\n");	*/
 				fprintf(stderr, "         -l    INT      flanking space [300]\n");
 				fprintf(stderr, "         -h             help\n");
 				return 1;	
