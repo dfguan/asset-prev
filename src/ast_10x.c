@@ -468,16 +468,16 @@ help:
 				fprintf(stderr, "\nUsage: aa_10x [options] <GAP_BED> <BAM_FILEs> ...\n");
 				fprintf(stderr, "Options:\n");
 				fprintf(stderr, "         -b    INT      minimum barcode number for each molecule [5]\n");	
-				fprintf(stderr, "         -B    INT      maximum barcode number for each molecule [1000]\n");
+				fprintf(stderr, "         -B    INT      maximum barcode number for each molecule [inf]\n");
 				fprintf(stderr, "         -c    INT      minimum coverage [10]\n");
 				fprintf(stderr, "         -r    FLOAT    minimum coverage ratio [.15]\n");
-				fprintf(stderr, "         -C    INT      maximum coverage [100]\n");
-				fprintf(stderr, "         -q    INT      minimum alignment quality [0]\n");
+				fprintf(stderr, "         -C    INT      maximum coverage [inf]\n");
+				fprintf(stderr, "         -q    INT      minimum mapping quality [30]\n");
 				/*fprintf(stderr, "         -S    INT      minimum aislignment score [0]\n");*/
 				fprintf(stderr, "         -l    INT      minimum molecule length [1000]\n");
 				fprintf(stderr, "         -S    INT      maximum spanning length [50000]\n");
-				fprintf(stderr, "         -L    INT      maximum insertion length [10000]\n");
-				fprintf(stderr, "         -a    INT      minimum barcode for contig [1]\n");
+				fprintf(stderr, "         -L    INT      maximum insertion length [1000]\n");
+				fprintf(stderr, "         -a    INT      minimum barcode for contig [3]\n");
 				fprintf(stderr, "         -h             help\n");
 				return 1;	
 		}		

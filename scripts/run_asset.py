@@ -60,7 +60,7 @@ def assess_pb(man, ref, fofn, core_lim, mem_lim, queue, out_dir, bin_dir, spid, 
 
         j = hpc("lsf", cmd=jcmd, core=1, mem = mem_lim, jn=jjn, out=jout, err=jerr)
         jobs.append(j)
-        man.start(jobs)
+        man.start(jobs, True)
 
 
 def bwa_index(p):
@@ -268,7 +268,7 @@ def assess_bn_core(p):
             key_fn = "{0}/fa2cmap/{1}_{2}_0Kb_0labels_key.txt".format(out_dir, ref_prefix, enzyme)
             query_cmap = "{0}/{1}".format(out_dir, getfn(fn))
             optn = "DLE1_{}".format(tech.lower()) if enzyme == "DLE1" else tech.lower()
-            jcmd = " ".join(["python2",  solve_dir+"Pipeline/04122018/runCharacterize.py","-t",  solve_dir+"RefAligner/7437.7523rel/RefAligner","-q", query_cmap, "-r", ref_cmap, "-p", solve_dir+"Pipeline/04122018/", "-a", solve_dir+"RefAligner/7437.7523rel/optArguments_haplotype_{}.xml".format(optn), "-n","2"])
+            jcmd = " ".join(["python2",  solve_dir+"Pipeline/04122018/runCharacterize.py","-t",  solve_dir+"RefAligner/7437.7523rel/RefAligner","-q", query_cmap, "-r", ref_cmap, "-p", solve_dir+"Pipeline/04122018/", "-a", solve_dir+"RefAligner/7437.7523rel/optArguments_nonhaplotype_{}.xml".format(optn), "-n","2"])
              
             j = hpc("lsf", mem=mem_lim, core=core_lim, queue=queue, cmd=jcmd, jn="bn_refalign", out="{0}/bn_refalign_{1}.o".format(out_dir, enzyme[0:4]))
             rtn = man.start([j], True) 
@@ -314,22 +314,22 @@ def assess_bn(man, ref, fofn_list, core_lim, mem_lim, queue, out_dir, bin_dir, s
             man.start([j], True)
             
 def acc(man, ref, out_dir, bin_dir, spid):
-    if not checkf(ref+".fai"):
-        jcmd = ['samtools', 'faidx', ref]
-        jjn = "faidx"
-        jout = "{0}/{1}.o".format(out_dir, jjn)
-        jerr = "{0}/{1}.e".format(out_dir, jjn)
-        j = hpc(cmd=jcmd, jn=jjn, out=jout, err=jerr)
-        rtn = man.start([j])
-        if rtn:
-            return 
+    # if not checkf():
+        # jcmd = ['samtools', 'faidx', ref]
+        # jjn = "faidx"
+        # jout = "{0}/{1}.o".format(out_dir, jjn)
+        # jerr = "{0}/{1}.e".format(out_dir, jjn)
+        # j = hpc(cmd=jcmd, jn=jjn, out=jout, err=jerr)
+        # rtn = man.start([j])
+        # if rtn:
+            # return 
     beds = []
-    for fn in ["10x.bed", "bn.bed", "hic.bed", "pb.bed"]:
+    for fn in ["gaps.bed", "10x.bed", "bn.bed", "hic.bed", "pb.bed"]:
         fpath = "{0}/{1}".format(out_dir,fn)
         if checkf(fpath):
             beds.append(fpath)
     if len(beds):
-        jcmd = "{0}/acc {3} {1} > {2}/acc.bed".format(bin_dir, " ".join(beds), out_dir, ref+".fai") 
+        jcmd = "{0}/acc {1} > {2}/acc.bed".format(bin_dir, " ".join(beds), out_dir) 
         jjn = "acc_{}".format(spid)
         jout = "{0}/acc_{1}.o".format(out_dir, spid)
         jerr = "{0}/acc_{1}.e".format(out_dir, spid)
@@ -389,7 +389,7 @@ if __name__ == "__main__":
         jerr = "{}/detgaps.e".format(out_dir)
         
         j = hpc("lsf", cmd=jcmd, jn="detgaps", out=jout, err=jerr)
-        if man.start([j]):
+        if man.start([j], True):
             print ("fail to generate gaps for {}".format(ref))
             sys.exit(1)
 
