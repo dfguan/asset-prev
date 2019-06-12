@@ -1,9 +1,9 @@
 CC      =  gcc
-CFLAGS  =  -g -Wall -D VERBOSE -O2  
+CFLAGS  =  -g -Wall -D VERBOSE -O2 -D PRINT_COVERAGE 
 LDFLAGS = -lz
 
 #OBJS = gfa.o opt.o paf.o sdict.o eg.o 
-PROG = ast_pb ast_10x ast_hic ast_bion acc union pchlst detgaps acc2 # ast_postproc
+PROG = ast_pb ast_10x ast_hic ast_bion acc union pchlst detgaps acc ast_bion_bnx # ast_postproc
 
 .SUFFIXS:.c .o
 
@@ -22,13 +22,14 @@ ast_hic: ast_hic.o ast.o sdict.o bamlite.o  bed.o
 ast_bion: ast_bion.o amap.o sdict.o ast.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
+ast_bion_bnx: ast_bion_bnx.o amap.o sdict.o ast.o
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
 detgaps: det_gaps.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 acc: acc.o sdict.o bed.o ast.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
-
-
 
 join:joinh.o sdict.o bamlite.o 
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
